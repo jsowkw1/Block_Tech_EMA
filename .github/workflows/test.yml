@@ -36,3 +36,11 @@ jobs:
 
       - name: Run Forge tests
         run: forge test -vvv
+
+      - name: Run Forge coverage
+        run: forge coverage --report markdown > coverage-report.md
+
+      - name: Run Slither
+        uses: crytic/slither-action@v0.3.0
+        with:
+            fail-on: high
