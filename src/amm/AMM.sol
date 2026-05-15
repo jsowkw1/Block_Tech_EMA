@@ -61,4 +61,29 @@ contract AMM {
             liquidity
         );
     }
+    
+    function removeLiquidity(uint256 liquidity) 
+    external returns (uint256 amount0, uint256 amount1) {
+
+    if (liquidity == 0) {
+        revert InvalidAmount();
+    }
+
+    uint256 totalSupply = lpToken.totalSupply();
+
+    amount0 = (liquidity * reserve0) / totalSupply;
+    amount1 = (liquidity * reserve1) / totalSupply;
+
+    if (amount0 == 0 || amount1 == 0) {
+        revert InsufficientLiquidity();
+    }
+
+    lpToken.burn(msg.sender, liquidity);
+
+    reserve0 -= amount0;
+    reserve1 -= amount1;
+
+    token0.safeTransfer(msg.sender, amount0);
+    token1.safeTransfer(msg.sender, amount1);
+    }
 }
