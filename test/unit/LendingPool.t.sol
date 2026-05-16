@@ -114,4 +114,67 @@ contract LendingPoolTest is Test {
 
         assertEq(hf, 200);
     }
+
+    function test_Liquidation() public {
+        vm.startPrank(alice);
+
+        collateralToken.approve(address(pool), 100e18);
+
+        pool.depositCollateral(100e18);
+
+        pool.borrow(75e18);
+        vm.store(
+            address(pool),
+            keccak256(abi.encode(alice, uint256(1))),
+            bytes32(uint256(50e18))
+        );
+
+        vm.stopPrank();
+
+        borrowToken.mint(bob, 75e18);
+
+        vm.startPrank(bob);
+
+        borrowToken.approve(address(pool), 75e18);
+
+        pool.liquidate(alice);
+
+        vm.stopPrank();
+
+        assertEq(pool.borrowedAmount(alice), 0);
+
+        assertEq(pool.collateralBalance(alice), 0);
+
+        assertEq(collateralToken.balanceOf(bob), 50e18);
+    }
+
+    function test_RevertLiquidationHealthyPosition() public {
+        vm.startPrank(alice);
+
+        collateralToken.approve(address(pool), 100e18);
+
+        pool.depositCollateral(100e18);
+
+        pool.borrow(40e18);
+
+        vm.stopPrank();
+
+        borrowToken.mint(bob, 40e18);
+
+        vm.startPrank(bob);
+
+        borrowToken.approve(address(pool), 40e18);
+
+        vm.expectRevert(LendingPool.PositionHealthy.selector);
+
+        pool.liquidate(alice);
+
+        vm.stopPrank();
+    }
+
+    function test_RevertLiquidationNoDebt() public {
+        vm.expectRevert(LendingPool.NoDebt.selector);
+
+        pool.liquidate(alice);
+    }
 }
