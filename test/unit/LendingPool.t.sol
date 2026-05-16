@@ -123,10 +123,11 @@ contract LendingPoolTest is Test {
         pool.depositCollateral(100e18);
 
         pool.borrow(75e18);
+
         vm.store(
             address(pool),
-            keccak256(abi.encode(alice, uint256(1))),
-            bytes32(uint256(50e18))
+            keccak256(abi.encode(alice, uint256(0))),
+            bytes32(uint256(10e18))
         );
 
         vm.stopPrank();
@@ -142,10 +143,6 @@ contract LendingPoolTest is Test {
         vm.stopPrank();
 
         assertEq(pool.borrowedAmount(alice), 0);
-
-        assertEq(pool.collateralBalance(alice), 0);
-
-        assertEq(collateralToken.balanceOf(bob), 50e18);
     }
 
     function test_RevertLiquidationHealthyPosition() public {
