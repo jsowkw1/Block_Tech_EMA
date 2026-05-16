@@ -12,7 +12,7 @@ contract DeFiVault is ERC4626, Ownable {
     constructor(
         IERC20 asset_,
         address initialOwner
-    ) ERC20("DeFi Vault Share", "DVS") ERC4626(asset_) Ownable(initialOwner) {}
+    ) ERC20("DeFi Vault Share", "DVS") ERC4626(asset_) Ownable(initialOwner) { }
 
     function deposit(
         uint256 assets,
