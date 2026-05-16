@@ -87,10 +87,9 @@ contract AMM is ReentrancyGuard {
             revert InsufficientLiquidity();
         }
 
-        lpToken.mint(msg.sender, liquidity);
-
         reserve0 += amount0;
         reserve1 += amount1;
+        lpToken.mint(msg.sender, liquidity);
 
         emit LiquidityAdded(msg.sender, amount0, amount1, liquidity);
     }
@@ -114,11 +113,9 @@ contract AMM is ReentrancyGuard {
             revert SlippageExceeded();
         }
 
-        lpToken.burn(msg.sender, liquidity);
-
         reserve0 -= amount0;
         reserve1 -= amount1;
-
+        lpToken.burn(msg.sender, liquidity);
         token0.safeTransfer(msg.sender, amount0);
         token1.safeTransfer(msg.sender, amount1);
 
