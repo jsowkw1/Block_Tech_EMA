@@ -15,7 +15,7 @@ contract GovernanceTokenTest is Test {
     function setUp() public {
         vm.prank(owner);
 
-        token = new GovernanceToken();
+        token = new GovernanceToken(owner);
     }
 
     function test_InitialSupply() public view {

@@ -1,17 +1,18 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import "openzeppelin-contracts/contracts/token/ERC20/ERC20.sol";
-import "openzeppelin-contracts/contracts/token/ERC20/extensions/ERC4626.sol";
-import "openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
-import "openzeppelin-contracts/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/extensions/ERC4626.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract DeFiVault is ERC4626, Ownable {
     error InvalidAmount();
 
     constructor(
-        IERC20 asset_
-    ) ERC20("DeFi Vault Share", "DVS") ERC4626(asset_) { }
+        IERC20 asset_,
+        address initialOwner
+    ) ERC20("DeFi Vault Share", "DVS") ERC4626(asset_) Ownable(initialOwner) {}
 
     function deposit(
         uint256 assets,

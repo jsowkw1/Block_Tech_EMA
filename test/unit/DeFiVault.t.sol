@@ -18,7 +18,7 @@ contract DeFiVaultTest is Test {
     function setUp() public {
         asset = new MockERC20("Mock USDC", "mUSDC");
 
-        vault = new DeFiVault(asset);
+        vault = new DeFiVault(asset, address(this));
 
         asset.mint(alice, 1000e18);
 
