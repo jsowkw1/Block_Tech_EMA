@@ -1,29 +1,23 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol";
-import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
+import "openzeppelin-contracts/contracts/token/ERC20/extensions/ERC20Votes.sol";
+import "openzeppelin-contracts/contracts/access/Ownable.sol";
 
-contract GovernanceToken is ERC20Votes, ERC20Permit, Ownable {
+contract GovernanceToken is ERC20Votes, Ownable {
     error InvalidAddress();
     error InvalidAmount();
 
     uint256 public constant MAX_SUPPLY = 10_000_000e18;
 
-    constructor(address initialOwner)
-        ERC20("DeFi Gov Token", "DGT")
-        ERC20Permit("DeFi Gov Token")
-        Ownable(initialOwner)
-    {
-        if (initialOwner == address(0)) {
-            revert InvalidAddress();
-        }
-
-        _mint(initialOwner, 1_000_000e18);
+    constructor() ERC20("DeFi Gov Token", "DGT") ERC20Permit("DeFi Gov Token") {
+        _mint(msg.sender, 1_000_000e18);
     }
 
-    function mint(address to, uint256 amount) external onlyOwner {
+    function mint(
+        address to,
+        uint256 amount
+    ) external onlyOwner {
         if (to == address(0)) {
             revert InvalidAddress();
         }
@@ -39,11 +33,25 @@ contract GovernanceToken is ERC20Votes, ERC20Permit, Ownable {
         _mint(to, amount);
     }
 
-    function _update(address from, address to, uint256 amount) internal override(ERC20, ERC20Votes) {
-        super._update(from, to, amount);
+    function _afterTokenTransfer(
+        address from,
+        address to,
+        uint256 amount
+    ) internal override(ERC20Votes) {
+        super._afterTokenTransfer(from, to, amount);
     }
 
-    function nonces(address account) public view override(ERC20Permit, Nonces) returns (uint256) {
-        return super.nonces(account);
+    function _mint(
+        address to,
+        uint256 amount
+    ) internal override(ERC20Votes) {
+        super._mint(to, amount);
+    }
+
+    function _burn(
+        address account,
+        uint256 amount
+    ) internal override(ERC20Votes) {
+        super._burn(account, amount);
     }
 }

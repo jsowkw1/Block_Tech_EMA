@@ -3,7 +3,7 @@ pragma solidity ^0.8.20;
 
 import "openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 import "openzeppelin-contracts/contracts/token/ERC20/utils/SafeERC20.sol";
-import "openzeppelin-contracts/contracts/utils/ReentrancyGuard.sol";
+import "openzeppelin-contracts/contracts/security/ReentrancyGuard.sol";
 
 contract LendingPool is ReentrancyGuard {
     using SafeERC20 for IERC20;
@@ -33,15 +33,22 @@ contract LendingPool is ReentrancyGuard {
 
     event CollateralWithdrawn(address indexed user, uint256 amount);
 
-    event Liquidated(address indexed user, address indexed liquidator, uint256 repaidDebt);
+    event Liquidated(
+        address indexed user, address indexed liquidator, uint256 repaidDebt
+    );
 
-    constructor(address _collateralToken, address _borrowToken) {
+    constructor(
+        address _collateralToken,
+        address _borrowToken
+    ) {
         collateralToken = IERC20(_collateralToken);
 
         borrowToken = IERC20(_borrowToken);
     }
 
-    function depositCollateral(uint256 amount) external nonReentrant {
+    function depositCollateral(
+        uint256 amount
+    ) external nonReentrant {
         if (amount == 0) {
             revert InvalidAmount();
         }
@@ -53,7 +60,9 @@ contract LendingPool is ReentrancyGuard {
         emit CollateralDeposited(msg.sender, amount);
     }
 
-    function borrow(uint256 amount) external nonReentrant {
+    function borrow(
+        uint256 amount
+    ) external nonReentrant {
         if (amount == 0) {
             revert InvalidAmount();
         }
@@ -71,7 +80,9 @@ contract LendingPool is ReentrancyGuard {
         emit Borrowed(msg.sender, amount);
     }
 
-    function repay(uint256 amount) external nonReentrant {
+    function repay(
+        uint256 amount
+    ) external nonReentrant {
         if (amount == 0) {
             revert InvalidAmount();
         }
@@ -87,7 +98,9 @@ contract LendingPool is ReentrancyGuard {
         emit Repaid(msg.sender, amount);
     }
 
-    function withdrawCollateral(uint256 amount) external nonReentrant {
+    function withdrawCollateral(
+        uint256 amount
+    ) external nonReentrant {
         if (amount == 0) {
             revert InvalidAmount();
         }
@@ -100,7 +113,10 @@ contract LendingPool is ReentrancyGuard {
 
         uint256 healthFactor = getHealthFactor(msg.sender);
 
-        if (borrowedAmount[msg.sender] > 0 && healthFactor < LIQUIDATION_THRESHOLD) {
+        if (
+            borrowedAmount[msg.sender] > 0
+                && healthFactor < LIQUIDATION_THRESHOLD
+        ) {
             revert HealthFactorTooLow();
         }
 
@@ -109,7 +125,9 @@ contract LendingPool is ReentrancyGuard {
         emit CollateralWithdrawn(msg.sender, amount);
     }
 
-    function liquidate(address user) external nonReentrant {
+    function liquidate(
+        address user
+    ) external nonReentrant {
         if (borrowedAmount[user] == 0) {
             revert NoDebt();
         }
@@ -135,7 +153,9 @@ contract LendingPool is ReentrancyGuard {
         emit Liquidated(user, msg.sender, debt);
     }
 
-    function getHealthFactor(address user) public view returns (uint256) {
+    function getHealthFactor(
+        address user
+    ) public view returns (uint256) {
         uint256 debt = borrowedAmount[user];
 
         if (debt == 0) {

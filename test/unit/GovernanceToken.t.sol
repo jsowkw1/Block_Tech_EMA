@@ -8,14 +8,14 @@ import "../../src/governance/GovernanceToken.sol";
 contract GovernanceTokenTest is Test {
     GovernanceToken token;
 
-    address owner = address(1);
+    address owner = address(this);
     address alice = address(2);
     address bob = address(3);
 
     function setUp() public {
         vm.prank(owner);
 
-        token = new GovernanceToken(owner);
+        token = new GovernanceToken();
     }
 
     function test_InitialSupply() public view {
@@ -63,7 +63,9 @@ contract GovernanceTokenTest is Test {
     function test_Transfer() public {
         vm.prank(owner);
 
-        assertTrue(token.transfer(alice, 100e18));
+        bool success = token.transfer(alice, 100e18);
+
+        assertTrue(success);
 
         assertEq(token.balanceOf(alice), 100e18);
     }
@@ -73,7 +75,12 @@ contract GovernanceTokenTest is Test {
 
         vm.expectRevert();
 
-        token.transfer(bob, 1e18);
+        (bool success,) = address(token)
+            .call(
+                abi.encodeWithSignature("transfer(address,uint256)", bob, 1e18)
+            );
+
+        success;
     }
 
     function test_DelegateToSelf() public {
@@ -89,7 +96,9 @@ contract GovernanceTokenTest is Test {
     function test_DelegateToAlice() public {
         vm.prank(owner);
 
-        assertTrue(token.transfer(alice, 200e18));
+        bool success = token.transfer(alice, 200e18);
+
+        assertTrue(success);
 
         vm.prank(alice);
 
@@ -101,7 +110,9 @@ contract GovernanceTokenTest is Test {
     function test_VotingPowerTransferAfterRedelegate() public {
         vm.prank(owner);
 
-        assertTrue(token.transfer(alice, 300e18));
+        bool success = token.transfer(alice, 300e18);
+
+        assertTrue(success);
 
         vm.prank(alice);
 
@@ -131,7 +142,9 @@ contract GovernanceTokenTest is Test {
 
         vm.roll(block.number + 1);
 
-        assertTrue(token.transfer(alice, 100e18));
+        bool success = token.transfer(alice, 100e18);
+
+        assertTrue(success);
 
         vm.roll(block.number + 1);
 

@@ -17,11 +17,17 @@ contract LPToken is ERC20 {
         _;
     }
 
-    function mint(address to, uint256 amount) external onlyAMM {
+    function mint(
+        address to,
+        uint256 amount
+    ) external onlyAMM {
         _mint(to, amount);
     }
 
-    function burn(address from, uint256 amount) external onlyAMM {
+    function burn(
+        address from,
+        uint256 amount
+    ) external onlyAMM {
         _burn(from, amount);
     }
 }

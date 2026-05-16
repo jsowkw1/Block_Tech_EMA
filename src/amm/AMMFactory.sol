@@ -12,9 +12,17 @@ contract AMMFactory {
     error ZeroAddress();
     error PoolAlreadyExists();
 
-    event PoolCreated(address indexed token0, address indexed token1, address pool, uint256 totalPools);
+    event PoolCreated(
+        address indexed token0,
+        address indexed token1,
+        address pool,
+        uint256 totalPools
+    );
 
-    function createPool(address tokenA, address tokenB) external returns (address pool) {
+    function createPool(
+        address tokenA,
+        address tokenB
+    ) external returns (address pool) {
         if (tokenA == tokenB) {
             revert IdenticalAddresses();
         }
@@ -23,7 +31,8 @@ contract AMMFactory {
             revert ZeroAddress();
         }
 
-        (address token0, address token1) = tokenA < tokenB ? (tokenA, tokenB) : (tokenB, tokenA);
+        (address token0, address token1) =
+            tokenA < tokenB ? (tokenA, tokenB) : (tokenB, tokenA);
 
         if (getPool[token0][token1] != address(0)) {
             revert PoolAlreadyExists();
@@ -31,7 +40,7 @@ contract AMMFactory {
 
         bytes32 salt = keccak256(abi.encodePacked(token0, token1));
 
-        pool = address(new AMM{salt: salt}(token0, token1));
+        pool = address(new AMM{ salt: salt }(token0, token1));
 
         getPool[token0][token1] = pool;
         getPool[token1][token0] = pool;

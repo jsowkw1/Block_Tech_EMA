@@ -33,7 +33,10 @@ contract AMMFuzzTest is Test {
         vm.stopPrank();
     }
 
-    function testFuzz_AddLiquidity(uint96 amount0, uint96 amount1) public {
+    function testFuzz_AddLiquidity(
+        uint96 amount0,
+        uint96 amount1
+    ) public {
         amount0 = uint96(bound(amount0, 1 ether, 1000 ether));
 
         amount1 = uint96(bound(amount1, 1 ether, 1000 ether));
@@ -49,7 +52,10 @@ contract AMMFuzzTest is Test {
         assertEq(amm.reserve1(), amount1);
     }
 
-    function testFuzz_Swap(uint96 liquidity, uint96 swapAmount) public {
+    function testFuzz_Swap(
+        uint96 liquidity,
+        uint96 swapAmount
+    ) public {
         liquidity = uint96(bound(liquidity, 100 ether, 1000 ether));
 
         swapAmount = uint96(bound(swapAmount, 1 ether, 100 ether));
