@@ -2,16 +2,19 @@
 pragma solidity ^0.8.20;
 
 import "forge-std/Test.sol";
+
 import "../../src/governance/GovernanceToken.sol";
 
 contract GovernanceTokenTest is Test {
     GovernanceToken token;
+
     address owner = address(1);
     address alice = address(2);
     address bob = address(3);
 
     function setUp() public {
         vm.prank(owner);
+
         token = new GovernanceToken(owner);
     }
 
@@ -25,6 +28,7 @@ contract GovernanceTokenTest is Test {
 
     function test_NameAndSymbol() public view {
         assertEq(token.name(), "DeFi Gov Token");
+
         assertEq(token.symbol(), "DGT");
     }
 
@@ -34,46 +38,61 @@ contract GovernanceTokenTest is Test {
 
     function test_OwnerCanMint() public {
         vm.prank(owner);
+
         token.mint(alice, 500e18);
+
         assertEq(token.balanceOf(alice), 500e18);
     }
 
     function test_MintIncreasesTotalSupply() public {
         vm.prank(owner);
+
         token.mint(alice, 100e18);
+
         assertEq(token.totalSupply(), 1_000_100e18);
     }
 
     function test_RevertMint_NotOwner() public {
         vm.prank(alice);
+
         vm.expectRevert();
+
         token.mint(alice, 100e18);
     }
 
     function test_Transfer() public {
         vm.prank(owner);
-        token.transfer(alice, 100e18);
+
+        assertTrue(token.transfer(alice, 100e18));
+
         assertEq(token.balanceOf(alice), 100e18);
     }
 
     function test_RevertTransfer_InsufficientBalance() public {
         vm.prank(alice);
+
         vm.expectRevert();
+
         token.transfer(bob, 1e18);
     }
 
     function test_DelegateToSelf() public {
         vm.startPrank(owner);
+
         token.delegate(owner);
+
         assertEq(token.getVotes(owner), 1_000_000e18);
+
         vm.stopPrank();
     }
 
     function test_DelegateToAlice() public {
         vm.prank(owner);
-        token.transfer(alice, 200e18);
+
+        assertTrue(token.transfer(alice, 200e18));
 
         vm.prank(alice);
+
         token.delegate(alice);
 
         assertEq(token.getVotes(alice), 200e18);
@@ -81,15 +100,21 @@ contract GovernanceTokenTest is Test {
 
     function test_VotingPowerTransferAfterRedelegate() public {
         vm.prank(owner);
-        token.transfer(alice, 300e18);
+
+        assertTrue(token.transfer(alice, 300e18));
 
         vm.prank(alice);
+
         token.delegate(alice);
+
         assertEq(token.getVotes(alice), 300e18);
 
         vm.prank(alice);
+
         token.delegate(bob);
+
         assertEq(token.getVotes(alice), 0);
+
         assertEq(token.getVotes(bob), 300e18);
     }
 
@@ -99,17 +124,25 @@ contract GovernanceTokenTest is Test {
 
     function test_PastVotesAfterTransfer() public {
         vm.startPrank(owner);
+
         token.delegate(owner);
+
         uint256 blockBefore = block.number;
+
         vm.roll(block.number + 1);
-        token.transfer(alice, 100e18);
+
+        assertTrue(token.transfer(alice, 100e18));
+
         vm.roll(block.number + 1);
+
         assertEq(token.getPastVotes(owner, blockBefore), 1_000_000e18);
+
         vm.stopPrank();
     }
 
     function test_PermitDomainSeparator() public view {
         bytes32 separator = token.DOMAIN_SEPARATOR();
+
         assertTrue(separator != bytes32(0));
     }
 
